@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="Svenska Herald — AI destekli İsveççe öğrenme platformu. Veteriner & tıp İsveççesi, journalföring, CEFR / SFI / TISUS / Socialstyrelsen sınav pratiği.">
+<meta name="theme-color" content="#0d0f14">
+<title>Svenska Herald</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇸🇪</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="dark" id="body">
+
+<a href="#mainContent" class="skip-link">Till innehållet</a>
+
+<!-- ═══ INSTÄLLNINGAR ═══ -->
+<div id="settingsModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+  <div class="modal-box modal-wide">
+    <button class="modal-close" data-act="closeSettings" aria-label="Stäng">✕</button>
+    <div class="modal-icon">⚙️</div>
+    <h2 id="settingsTitle">Inställningar</h2>
+
+    <div class="settings-tabs" role="tablist">
+      <button class="settings-tab active" data-act="setSettingsTab" data-tab="api" role="tab">🔑 API</button>
+      <button class="settings-tab" data-act="setSettingsTab" data-tab="voice" role="tab">🔊 Ljud</button>
+      <button class="settings-tab" data-act="setSettingsTab" data-tab="study" role="tab">🎯 Studier</button>
+      <button class="settings-tab" data-act="setSettingsTab" data-tab="data" role="tab">💾 Data</button>
+    </div>
+
+    <!-- API -->
+    <div class="settings-pane" id="setPaneApi">
+      <label class="fld-label" for="apiKeyInput">Anthropic API-nyckel</label>
+      <div class="input-with-btn">
+        <input type="password" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
+        <button class="icon-btn" data-act="toggleKeyVisibility" title="Visa/dölj" aria-label="Visa nyckel">👁</button>
+      </div>
+      <p class="fld-hint"><a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a> → API Keys → Create Key</p>
+
+      <label class="fld-label" for="modelSelect">Modell</label>
+      <select id="modelSelect" class="fld-select">
+        <option value="claude-haiku-4-5-20251001">Haiku 4.5 — snabb & billig</option>
+        <option value="claude-sonnet-4-5-20250929">Sonnet 4.5 — balanserad (rekommenderas för bedömning)</option>
+        <option value="claude-opus-4-1-20250805">Opus 4.1 — mest detaljerad, dyrast</option>
+      </select>
+      <p class="fld-hint">Sınav ve journal değerlendirmesi için Sonnet, günlük sohbet için Haiku iyi bir denge.</p>
+
+      <div class="notice-box">🔒 Anahtarın <b>yalnızca bu tarayıcıda</b> saklanır, hiçbir sunucuya gönderilmez. İstekler doğrudan tarayıcından Anthropic'e gider.</div>
+    </div>
+
+    <!-- LJUD -->
+    <div class="settings-pane hidden" id="setPaneVoice">
+      <label class="fld-label" for="voiceSelect">Svensk röst (TTS)</label>
+      <select id="voiceSelect" class="fld-select"></select>
+
+      <label class="fld-label" for="rateRange">Talhastighet — <span id="rateVal">0.90</span>×</label>
+      <input type="range" id="rateRange" class="fld-range" min="0.5" max="1.3" step="0.05" value="0.9">
+
+      <label class="fld-label toggle-row"><input type="checkbox" id="autoSpeakChk"> Läs upp AI-svaren automatiskt</label>
+      <label class="fld-label toggle-row"><input type="checkbox" id="autoListenChk"> Öppna mikrofonen när AI:n talat klart</label>
+
+      <button class="btn-ghost" data-act="testVoice" style="width:100%;margin-top:8px">🔊 Testa rösten</button>
+      <div class="notice-box" id="micSupportNote"></div>
+    </div>
+
+    <!-- STUDIER -->
+    <div class="settings-pane hidden" id="setPaneStudy">
+      <label class="fld-label" for="levelSelect">Din CEFR-nivå (AI anpassar sig efter den)</label>
+      <select id="levelSelect" class="fld-select">
+        <option value="A1">A1 — Nybörjare</option>
+        <option value="A2">A2 — Grundläggande</option>
+        <option value="B1">B1 — Mellannivå</option>
+        <option value="B2">B2 — Högre mellannivå</option>
+        <option value="C1">C1 — Avancerad</option>
+        <option value="C2">C2 — Mycket avancerad</option>
+      </select>
+
+      <label class="fld-label" for="standardSelect">Provstandard</label>
+      <select id="standardSelect" class="fld-select" data-chg="standardChanged">
+        <option value="cefr">🌍 CEFR — genel Avrupa ölçeği</option>
+        <option value="sfi">🏫 SFI / SAS — nationella prov</option>
+        <option value="tisus">🎓 TISUS — üniversite yeterliği</option>
+        <option value="medsv">⚕️ Socialstyrelsen — medicinsk svenska (C1)</option>
+      </select>
+      <p class="fld-hint" id="standardDesc"></p>
+
+      <label class="fld-label" for="professionInput">Ditt yrke (AI:n anpassar exempel efter det)</label>
+      <input type="text" id="professionInput" class="fld-select" placeholder="t.ex. veterinär, läkare, sjuksköterska" autocomplete="off">
+
+      <label class="fld-label">Dagligt ordmål</label>
+      <div class="goal-set-row" id="goalChipsSettings"></div>
+
+      <label class="fld-label toggle-row"><input type="checkbox" id="correctChk"> Rätta min svenska automatiskt i chatten</label>
+    </div>
+
+    <!-- DATA -->
+    <div class="settings-pane hidden" id="setPaneData">
+      <div class="data-stats" id="dataStats"></div>
+      <button class="btn-ghost" data-act="exportData" style="width:100%;margin-bottom:8px">⬇️ Säkerhetskopiera allt (.json)</button>
+      <button class="btn-ghost" data-act="exportCsv" style="width:100%;margin-bottom:8px">📄 Exportera ordbanken (.csv)</button>
+      <label class="btn-ghost import-label" style="width:100%;margin-bottom:8px;display:block;text-align:center">
+        ⬆️ Återställ från säkerhetskopia<input type="file" id="importFile" accept=".json" hidden>
+      </label>
+      <button class="btn-danger" data-act="resetData" style="width:100%">🗑️ Radera all data</button>
+      <div class="notice-box">Veriler tarayıcının localStorage'ında tutulur. Tarayıcı verilerini temizlersen kaybolur — ara sıra yedek al.</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-primary" data-act="saveSettings">Spara</button>
+      <button class="btn-ghost" data-act="closeSettings">Stäng</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ HEADER ═══ -->
+<header id="siteHeader">
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="header-chips" id="headerChips"></div>
+      <div class="header-right">
+        <div class="level-chip" id="levelChip" title="CEFR-nivå">B1</div>
+        <div class="streak-badge" id="streakBadge" title="Dagsserie">🔥 <span id="streakNum">0</span></div>
+        <button class="icon-btn" data-act="toggleTheme" title="Byt tema" id="themeBtn" aria-label="Byt tema">🌙</button>
+        <button class="icon-btn" data-act="openSettings" title="Inställningar" aria-label="Inställningar">⚙️</button>
+      </div>
+    </div>
+    <div class="header-body">
+      <div>
+        <h1 class="site-title">Svenska <span>Herald</span></h1>
+        <div class="site-sub" id="siteSubtitle">Laddar...</div>
+      </div>
+      <div class="goal-widget">
+        <div class="goal-row"><span>🎯 Dagligt mål</span><span id="goalLabel" class="goal-count">0/5</span></div>
+        <div class="goal-bar-wrap"><div class="goal-bar-fill" id="goalFill"></div></div>
+        <div class="xp-row"><span id="xpLabel">0 XP</span><span id="levelLabel">Nivå 1</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ NAV ═══ -->
+<nav id="mainNav" aria-label="Huvudmeny">
+  <div class="nav-inner">
+    <button class="nav-btn active" data-tab="lessons" data-act="switchTab">📖 Lektioner</button>
+    <button class="nav-btn" data-tab="daily" data-act="switchTab">📰 Dagens</button>
+    <button class="nav-btn" data-tab="review" data-act="switchTab">🔁 Repetition</button>
+    <button class="nav-btn" data-tab="bank" data-act="switchTab">📚 Ordbanken</button>
+    <button class="nav-btn nav-btn-hl" data-tab="exam" data-act="switchTab">🎓 Prov</button>
+    <button class="nav-btn nav-btn-hl" data-tab="journal" data-act="switchTab">📋 Journal</button>
+    <button class="nav-btn" data-tab="progress" data-act="switchTab">📊 Framsteg</button>
+    <button class="nav-btn" data-tab="chat" data-act="switchTab">💬 AI-läraren</button>
+  </div>
+</nav>
+
+<!-- ═══ MAIN ═══ -->
+<main id="mainContent">
+  <div id="tabLessons" class="tab-pane active"></div>
+  <div id="tabDaily" class="tab-pane hidden"></div>
+  <div id="tabReview" class="tab-pane hidden"></div>
+  <div id="tabBank" class="tab-pane hidden"></div>
+  <div id="tabExam" class="tab-pane hidden"></div>
+  <div id="tabJournal" class="tab-pane hidden"></div>
+  <div id="tabProgress" class="tab-pane hidden"></div>
+  <div id="tabChat" class="tab-pane hidden"></div>
+</main>
+
+<footer class="site-footer">
+  <span>Svenska Herald · Türkçe'den İsveççeye, ämne för ämne, dag för dag</span>
+  <span class="footer-keys">Kısayollar: <kbd>1-8</kbd> sekmeler · <kbd>Space</kbd> kart çevir · <kbd>Esc</kbd> kapat</span>
+</footer>
+
+<div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+<script src="data.js"></script>
+<script src="exam-data.js"></script>
+<script src="app.js"></script>
+<script src="chat.js"></script>
+<script src="exam.js"></script>
+<script src="journal.js"></script>
+</body>
+</html>
