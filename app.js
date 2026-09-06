@@ -418,8 +418,10 @@ function updateHeader() {
   set('xpLabel', S.xp + ' XP');
   set('levelLabel', `Nivå ${lv.level} · ${lv.title}`);
   set('streakNum', S.streak);
-  const totalWords = Object.values(CONTENT).reduce((s, t) => s + t.units.reduce((a, u) => a + u.vocab.length, 0), 0);
-  set('siteSubtitle', `${totalWords} ord · Veterinär- & humanmedicin · Myndigheter · Journalföring · ${STANDARDS[S.cfg.standard].short}`);
+  const totalWords = (typeof dict === 'function' && dict().length)
+    ? dict().length
+    : Object.values(CONTENT).reduce((s, t) => s + t.units.reduce((a, u) => a + u.vocab.length, 0), 0);
+  set('siteSubtitle', `${totalWords.toLocaleString('sv-SE')} ord · Veterinär- & humanmedicin · Myndigheter · Journalföring · ${STANDARDS[S.cfg.standard].short}`);
   const chips = document.getElementById('headerChips');
   if (chips) chips.innerHTML = [['var(--orange)', 'Veterinär'], ['var(--red)', 'Medicin'], ['var(--blue)', 'Myndigheter'], ['var(--purple)', 'Grammatik']].map(([c, t]) => pill(c, t)).join('');
   const sb = document.getElementById('streakBadge');
@@ -1110,7 +1112,7 @@ function openSettings() {
   const hasSv = TTS.hasSwedish();
   document.getElementById('micSupportNote').innerHTML =
     (hasSv ? '🔊 İsveççe ses bulundu.' : '⚠️ Bu cihazda İsveççe konuşma sesi yok — telaffuz yanlış olabilir. Windows: Ayarlar → Saat ve Dil → Konuşma → Ses ekle → Svenska. Mac: Ayarlar → Erişilebilirlik → Konuşulan İçerik → Sesler.') +
-    '<br>' + (Mic.supported ? '🎙️ Mikrofon tanıma destekleniyor (sv-SE).' : '⚠️ Bu tarayıcı konuşma tanımayı desteklemiyor. Chrome veya Edge kullan.');
+    '<br>' + (Mic.supported ? '🎙️ Mikrofon tanıma destekleniyor (sv-SE).' : '⚠️ Bu cihazda konuşma tanıma yok — mikrofonla konuşma çalışmaz. <b>iPhone/iPad\'de hiçbir tarayıcıda çalışmaz</b> (Chrome dahil), bu Apple kısıtlaması. Android Chrome ve masaüstü Chrome/Edge destekler.<br>Seslendirme (dinleme) her cihazda çalışır; Tala pratiğini yazarak da yapabilirsin.');
   document.getElementById('standardDesc').textContent = STANDARDS[S.cfg.standard].desc;
   document.getElementById('goalChipsSettings').innerHTML = [3, 5, 10, 15, 20].map(n =>
     `<button class="goal-chip ${S.cfg.dailyGoal === n ? 'active' : ''}" data-act="setGoal2" data-n="${n}">${n} ord</button>`).join('');

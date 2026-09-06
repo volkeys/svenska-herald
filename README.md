@@ -250,6 +250,38 @@ Service worker sayesinde dersler, kelime bankan, kısaltma sözlüğü ve journa
 
 ---
 
+## 📱 Telefona uygulama olarak kurmak
+
+Her iki proje de **PWA** — App Store / Play Store'a gerek yok, siteyi açıp ana ekrana eklemen yeterli.
+Sonrası gerçek bir uygulama gibi: kendi simgesi, tam ekran (tarayıcı çubuğu yok), çevrimdışı çalışma.
+
+### iPhone / iPad (Safari — Chrome'dan olmaz)
+1. **Safari**'de siteyi aç
+2. Alttaki **Paylaş** düğmesi (kare + yukarı ok)
+3. Listede aşağı in → **Ana Ekrana Ekle**
+4. **Ekle** → simge ana ekranda
+
+### Android (Chrome)
+1. Chrome'da siteyi aç
+2. Sağ üstteki **⋮** → **Uygulamayı yükle** *(ya da "Ana ekrana ekle")*
+3. Alttan bir kurulum önerisi de çıkabilir — ona da basabilirsin
+
+### Kurulunca ne değişir?
+- Dersler, sözlük, tekrar sistemi, kısayollar **internetsiz** çalışır
+- Sadece AI özellikleri (sohbet, sınav değerlendirmesi, günlük brifing) internet ister
+- API anahtarın ve kelimelerin **sadece o cihazda** saklanır — telefon ve bilgisayar ayrı ayrıdır
+
+### Telefonda çalışmayan tek şey
+**iPhone'da mikrofonla konuşma tanıma çalışmaz.** Apple, WebKit'te Speech Recognition API'sini
+web sitelerine açmıyor — Chrome yüklesen de değişmez, çünkü iOS'ta her tarayıcı Safari motorunu kullanır.
+Seslendirme (🔊 dinleme) her cihazda çalışır, Speaking / Tala pratiğini **yazarak** yapabilirsin.
+Android Chrome'da mikrofon sorunsuz çalışır.
+
+### Uygulamayı güncellemek
+Yeni sürümü GitHub'a yükledikten sonra telefondaki uygulamayı **kapat ve yeniden aç** — iki açılışta
+kendini günceller. Hemen istiyorsan: uygulamayı sil, tarayıcıdan siteyi aç, tekrar ana ekrana ekle.
+Kelimelerin ve ayarların silinmeden önce **⚙️ → 💾 Veri → yedek al** demeyi unutma.
+
 ## 🛠️ Teknik
 
 Bağımlılık yok, derleme adımı yok — düz HTML/CSS/JS.
