@@ -163,6 +163,36 @@ const ABBREV = [
 
 const ABBREV_CATS = { all: 'Alla', allmän: 'Allmänt', status: 'Status', labb: 'Labb', 'läkemedel': 'Läkemedel', 'undersökning': 'Undersökning', vet: 'Veterinär' };
 
+// ── STANDARDFRASER (dagens fackfras + mallar) ────────────
+const JOURNAL_PHRASES = [
+  { sv: 'Pat söker för …', section: 'Anamnes', tr: 'Anamnezin standart açılışı. "söka för" = ...şikâyetiyle başvurmak.' },
+  { sv: 'Ägaren uppger att …', section: 'Anamnes', tr: '"uppge" = beyan etmek. Sahibin söylediğini aktarırken kullanılır — kendi gözlemin değil.' },
+  { sv: 'Debut för tre dagar sedan, gradvis försämring.', section: 'Anamnes', tr: '"debut" = başlangıç. Kronolojiyi böyle kurarsın.' },
+  { sv: 'Ingen feber, ingen viktnedgång.', section: 'Anamnes', tr: 'Olumsuz bulgular da yazılır — "negativ anamnes" tanıyı daraltır.' },
+  { sv: 'Tidigare frisk. Inga mediciner. Ingen känd allergi.', section: 'Anamnes', tr: 'Üç zorunlu kalem, tek satırda. Bu üçünü asla atlama.' },
+  { sv: 'Enligt ägaren har djuret ätit normalt fram till i går.', section: 'Anamnes', tr: '"enligt" = ...e göre. Kaynağı belirtmenin en kısa yolu.' },
+  { sv: 'AT gott, opåverkad i vila.', section: 'Status', tr: 'AT = allmäntillstånd. "opåverkad" = etkilenmemiş, rahat görünüyor.' },
+  { sv: 'Bltr 128/82, puls 72 regelbunden, temp 37,1 °C.', section: 'Status', tr: 'Vital bulgular birimiyle ve tek satırda. Nabız için "regelbunden/oregelbunden" eklenir.' },
+  { sv: 'Hjärta och lungor auskulteras u.a.', section: 'Status', tr: 'u.a. = utan anmärkning. Neyi muayene ettiğini yazman şart.' },
+  { sv: 'Buk mjuk och oöm, inga palpabla resistenser.', section: 'Status', tr: '"oöm" = ağrısız, "resistens" = kitle. Karın muayenesinin standart cümlesi.' },
+  { sv: 'Slemhinnor rosa och fuktiga, CRT < 2 s.', section: 'Status', tr: 'Veterinerlikte perfüzyon değerlendirmesinin klasik satırı.' },
+  { sv: 'Lokalstatus: 3 cm långt sår på höger framben, rena sårkanter.', section: 'Status', tr: 'Taraf (höger/vänster) ve ölçü yazmak zorunludur — hasta güvenliği.' },
+  { sv: 'Sannolikt viral övre luftvägsinfektion.', section: 'Bedömning', tr: '"sannolikt" = büyük olasılıkla. Kesinlik derecesini gösteren en yaygın sözcük.' },
+  { sv: 'Misstänker i första hand …', section: 'Bedömning', tr: '"i första hand" = ilk sırada. Ayırıcı tanı sıralaman.' },
+  { sv: 'Differentialdiagnostiskt övervägs …', section: 'Bedömning', tr: 'Diğer olasılıkları listelerken. Uzun ama tam olarak beklenen kalıp.' },
+  { sv: 'Fyndet talar för …', section: 'Bedömning', tr: '"tala för" = ...i düşündürmek. Karşıtı: "talar emot".' },
+  { sv: 'Kliniskt stabil, ingen indikation för inläggning.', section: 'Bedömning', tr: 'Yatış kararını gerekçelendirmenin kısa yolu.' },
+  { sv: 'Ingen misstanke om malignitet i nuläget.', section: 'Bedömning', tr: '"i nuläget" = şu aşamada. Kapıyı kapatmadan yazmanı sağlar.' },
+  { sv: 'T. Amoxicillin 500 mg 1x3 po i 7 dagar.', section: 'Åtgärd', tr: 'İlaç + doz + sıklık + yol + süre. Beşi birden olmalı — eksiği ordinasyon hatasıdır.' },
+  { sv: 'Provtagning: blodstatus, CRP, krea.', section: 'Åtgärd', tr: 'Hangi tetkiklerin istendiği tek satırda.' },
+  { sv: 'Remiss skickad till ortopedmottagningen, frågeställning: …', section: 'Åtgärd', tr: '"frågeställning" = sevkin sorusu. Bunu yazmayan sevk geri döner.' },
+  { sv: 'Pat informerad om diagnos och behandling, uppmanad att söka åter vid försämring.', section: 'Åtgärd', tr: 'Bilgilendirme ve güvenlik ağı — hukuken de önemli.' },
+  { sv: 'Återbesök om 10 dagar för suturtagning.', section: 'Åtgärd', tr: 'Takip: kim, ne zaman, ne için. Belirsiz takip en sık denetim bulgusudur.' },
+  { sv: 'Sjukskrivning 50 % i två veckor.', section: 'Åtgärd', tr: 'Yüzde + süre. Försäkringskassan bunu bekler.' },
+  { sv: 'Djurägaren informerad om narkosrisken, skriftligt medgivande inhämtat.', section: 'Åtgärd', tr: 'Veterinerlikte operasyon öncesi zorunlu kayıt.' },
+  { sv: 'Vätsketerapi Ringer-acetat 10 ml/kg/h iv.', section: 'Åtgärd', tr: 'Sıvı tedavisinde hız ve yol her zaman yazılır.' },
+];
+
 // ── PROMPTAR ─────────────────────────────────────────────
 const JOURNAL_EVAL_PROMPT = `Du är erfaren handledare i journalföring på ett svenskt sjukhus/djursjukhus och bedömer enligt Socialstyrelsens krav på medicinsk svenska (C1) samt god dokumentationssed.
 
@@ -502,14 +532,11 @@ Journal.renderMall = function () {
     <div class="panel-title">${s.sv} <span style="color:var(--muted);font-weight:500">— ${s.tr}</span></div>
     <div class="panel-hint">${esc(s.help)}</div></div>`).join('');
 
-  const phrases = [
-    ['Anamnes', ['Pat söker för …', 'Ägaren uppger att …', 'Debut för … sedan', 'Ingen feber, ingen viktnedgång.', 'Tidigare frisk. Inga mediciner. Ingen känd allergi.', 'Enligt ägaren har djuret …']],
-    ['Status', ['AT gott, opåverkad i vila.', 'Bltr 128/82, puls 72 regelbunden, temp 37,1 °C.', 'Hjärta och lungor auskulteras u.a.', 'Buk mjuk och oöm, inga palpabla resistenser.', 'Slemhinnor rosa och fuktiga, CRT < 2 s.', 'Lokalstatus: … cm stort sår på …']],
-    ['Bedömning', ['Sannolikt …', 'Misstänker … i första hand.', 'Differentialdiagnostiskt övervägs …', 'Fyndet talar för …', 'Ingen misstanke om … i nuläget.', 'Kliniskt stabil, ingen indikation för inläggning.']],
-    ['Åtgärd', ['T. Amoxicillin 500 mg 1x3 po i 7 dagar.', 'Provtagning: blodstatus, CRP, krea.', 'Remiss skickad till …', 'Pat informerad om … och uppmanad att söka åter vid försämring.', 'Återbesök om 10 dagar för suturtagning.', 'Sjukskrivning 50 % i två veckor.']],
-  ].map(([k, arr]) => `<div class="panel"><div class="panel-title">Standardfraser — ${k}</div>
-    <div class="phrase-list">${arr.map(p => `<div class="phrase-row"><span>${esc(p)}</span>
-      <button class="bt" data-act="speak" data-text="${attr(p)}">🔊</button></div>`).join('')}</div></div>`).join('');
+  const secOrder = ['Anamnes', 'Status', 'Bedömning', 'Åtgärd'];
+  const phrases = secOrder.map(k => `<div class="panel"><div class="panel-title">Standardfraser — ${k}</div>
+    <div class="phrase-list">${JOURNAL_PHRASES.filter(p => p.section === k).map(p => `<div class="phrase-row">
+      <div><div>${esc(p.sv)}</div>${p.tr ? `<div class="phrase-tr">${esc(p.tr)}</div>` : ''}</div>
+      <button class="bt" data-act="speak" data-text="${attr(p.sv)}">🔊</button></div>`).join('')}</div></div>`).join('');
 
   const sbar = `<div class="panel"><div class="panel-title">📞 SBAR — kollegial rapport</div>
     <div class="panel-hint">İsveç sağlık sisteminde meslektaşlar arası devir teslimin standardıdır. Telefonla acil bir durum bildirirken bu sırayı kullan.</div>

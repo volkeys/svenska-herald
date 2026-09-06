@@ -777,3 +777,53 @@ SVARA ENDAST med denna JSON, inget annat:
 - 'form' alanı ZORUNLU: isimlerde "en journal – journalen – journaler", fiillerde "skriva – skriver – skrev – skrivit".
 - 3 soruluk quiz: biri kelime anlamı, biri bağlamdan çıkarım, biri gramer/kullanım.`;
 
+
+// ── KULLANICININ GÜNLÜK ÖZEL PROMPTU İÇİN SİSTEM TALİMATI ──
+const CUSTOM_DAILY_SYSTEM = `Sen "Svenska Herald" uygulamasının günlük asistanısın. Kullanıcı Türk, İsveç'te yaşıyor ve İsveççe öğreniyor.
+
+Aşağıda kullanıcının kendi yazdığı bir talimat var. Onu bugün için yerine getir.
+
+KURALLAR
+- Açıklamalar TÜRKÇE, dil malzemesi (kelime, cümle, örnek) İSVEÇÇE olsun.
+- Her gün farklı içerik üret: aynı örnekleri, aynı kelimeleri tekrarlama. Tarihi bir çeşitlilik kaynağı olarak kullan.
+- Kısa ve uygulanabilir ol: en fazla 400 kelime. Markdown başlık ve madde işareti kullanabilirsin.
+- Uydurma bilgi verme. Güncel bir olaya atıf gerekiyorsa ve emin değilsen, genel ve doğru bilgiye dayan; kesin tarih/rakam uydurma.
+- Tıbbi ya da veteriner içerik varsa: bilgi amaçlıdır, klinik kararın yerine geçmez — bunu gerektiğinde belirt.
+- Talimatta ne isteniyorsa onu yap; talimatı yeniden yazma ya da özetleme, doğrudan sonucu ver.`;
+
+// ── HAZIR PAKET: GÜNLÜK VETERİNER KLİNİK BİLGİ PAKETİ ────
+// Ayarlar → Studier → Günlük özel prompt alanının varsayılanı.
+const VET_DAILY_PACKAGE = `Bana bugün için bir "Günlük Veteriner Klinik Bilgi Paketi" hazırla.
+Ben İsveç'te çalışan Türk bir veteriner hekimim. Amacım hem mesleki İsveççemi hem klinik bilgimi her gün bir adım ilerletmek.
+
+Şu yedi bölümü, tam bu sırayla ve bu başlıklarla ver:
+
+## 1. Dagens fall
+Kısa bir klinik vaka (5-7 satır, İsveççe): tür/ırk/yaş/cinsiyet/ağırlık, anamnez, status ve labb bulguları.
+Altına Türkçe iki cümle: bu vakada asıl dikkat edilmesi gereken ne?
+
+## 2. Fackord — 5 terim
+Bugünün vakasıyla ilgili 5 İsveççe mesleki terim. Her biri şu biçimde:
+**terim** — Türkçe karşılık · *çekim* (en/ett – bestämd form – plural, ya da fiilin dört hâli) · örnek cümle (İsveççe)
+
+## 3. Journalfras
+Bugünün vakasında kullanacağın bir journal kalıbı (İsveççe). Hangi bölüme (Anamnes/Status/Bedömning/Åtgärd) ait olduğunu ve neden öyle yazıldığını Türkçe açıkla.
+
+## 4. Differentialdiagnoser
+Vakaya uygun 3 ayırıcı tanı, İsveççe adlarıyla. Her birinin yanında tek satır Türkçe: bunu düşündüren/dışlayan bulgu ne?
+
+## 5. Läkemedel & dos
+Bu vakada akla gelen BİR ilaç. İsveççe adı, endikasyon, tipik doz aralığı (mg/kg, sıklık, yol), ve varsa tür kontrendikasyonu.
+Sonuna mutlaka şu notu ekle: "Doz ve kontrendikasyonlar FASS VET ile doğrulanmalıdır."
+
+## 6. Djurägarfras
+Bu vakadaki durumu hayvan sahibine anlatan, fackuttryck İÇERMEYEN, sade İsveççe 2-3 cümle. Altına Türkçe not: hangi terimi neden sadeleştirdin?
+
+## 7. Snabbfråga
+Bugünün paketinden tek bir kontrol sorusu ve hemen altında cevabı (İsveççe soru, Türkçe kısa cevap).
+
+KURALLAR
+- Her gün BAŞKA bir tür, başka bir sistem ve başka bir aciliyet düzeyi seç. Küçük hayvan, at ve çiftlik hayvanı arasında dönüşümlü git.
+- Vaka gerçekçi olsun ama uydurma kesin epidemiyolojik rakam verme.
+- Doz aralıklarını referans olarak sun, kesin ordinasyon gibi değil.
+- Toplam 400 kelimeyi aşma.`;

@@ -13,14 +13,109 @@ Sunucusuz, kurulumsuz, tek sayfalık bir web uygulaması. Tüm veriler tarayıc�
 
 | Bölüm | Açıklama |
 |---|---|
-| 📖 **Lektioner** | 7 konu, 33 ünite, **332 kelime** · her kelimede çekim (en/ett, belirli hâl, çoğul / fiilin 4 hâli), telaffuz, örnek cümle ve Türkçeye özgü ipucu |
-| 📰 **Dagens** | AI her gün seviyene uygun haber, özet, 6 kelime ve mini quiz üretir |
+| 📖 **Lektioner** | 7 konu, 33 ünite, 332 ders kelimesi (+ **1 933 kelimelik kürasyonlu ordlista**) · her kelimede çekim (en/ett, belirli hâl, çoğul / fiilin 4 hâli), telaffuz, örnek cümle ve Türkçeye özgü ipucu |
+| 📰 **Dagens** | **Her gün otomatik yenilenen brifing** — aşağıda |
 | 🔁 **Repetition** | SM-2 aralıklı tekrar · **sv→tr / tr→sv yön değiştirme**, klavye kısayolları |
-| 📚 **Ordbanken** | Arama, kategori filtresi, sıralama, tekrar tarihi, CSV dışa aktarma |
+| 📚 **Ordbanken** | Üç mod: ⭐ *Mina ord* (arama, filtre, sıralama, tekrar tarihi, CSV dışa aktarma) · 📕 **Hela ordlistan — 2 095 kelime** · ⚡ *Skapa & importera* (AI paket üreticisi + CSV içe aktarma) |
 | 🎓 **Prov** | **4 farklı standart**: CEFR · SFI/SAS · TISUS · Socialstyrelsen (aşağıda) |
 | 📋 **Journal** | Hasta kaydı yazma, okuma, kısaltmalar ve şablonlar (aşağıda) |
+| 🛠️ **Verktyg** | Mesleki İsveççe araçları — journal çevirici, djurägarråd, röntgen, doz, yazışma (aşağıda) |
 | 📊 **Framsteg** | XP, seviye, gün serisi, 90 günlük aktivite haritası, 14 rozet |
 | 💬 **AI-läraren** | Streaming yanıt, sesli konuşma (sv-SE), anlık hata düzeltme, **10 rol yapma senaryosu** |
+
+---
+
+## 📰 Dagens — her gün değişen brifing
+
+Uygulamayı günde ilk kez açtığında brifing **kendiliğinden** hazırlanır. Beş bölüm var:
+
+**🔤 Dagens ord** — 5 kelime, **API'siz çalışır**. Tarihe göre deterministik döner: aynı gün hep aynı,
+ertesi gün başka. Havuz artık **1 371 kelime** (vet · med · system · vardag · nyheter): tur bitmeden
+hiçbir kelime tekrarlanmaz, yani **274 günlük tekrarsız döngü**. Tur bittiğinde sıra yeniden karılır.
+Ordbanken'e kendi kelimelerini eklersen havuz da o kadar büyür.
+
+**🤖 Dagens AI-ord + nyhet** — AI o gün için haber, Türkçe özet, 6 kelime ve 3 soruluk quiz üretir.
+Son 14 günün konularını hatırlar ve tekrarlamaz.
+
+**✏️ Dagens grammatik · 🗣️ Dagens uttryck · 🩺 Dagens fackfras** — her gün bir gramer kuralı, bir deyim ve
+bir journal kalıbı. Bunlar da API'siz çalışır ve gün gün döner. Fackfras'ı tek tıkla ordbanken'e eklersin.
+
+**⚡ Günlük Veteriner Klinik Bilgi Paketi** — kurulumda hazır gelir. Her gün başka bir tür, sistem ve
+aciliyet düzeyinden yedi bölümlük bir paket üretir: *Dagens fall · 5 fackord (çekimli) · journalfras ·
+differentialdiagnoser · läkemedel & dos · djurägarfras · snabbfråga*.
+⚙️ Ayarlar → Studier'den üzerine kendi promptunu yazabilir, hazır pakete tek tuşla dönebilirsin.
+Aynı promptun her gün farklı çıktı vermesi için tarih ve tekrar etmeme kuralı sisteme dahil edildi.
+
+**🔁 Dünün tekrarı** — dün gördüğün kelimelerden 3 soruluk hızlı test. Tamamen yerel, API gerektirmez.
+
+### Ana sayfa da her gün değişir
+**Lektioner** sekmesini açtığında en üstte o günün 5 kelimesi durur. Altındaki ders de her gün başka
+bir üniteye ayarlanır — 33 ünite, 33 günde tam tur — ve o ünite *Dagens avsnitt* rozetiyle işaretlenir.
+Gün içinde istediğin konuya geçebilirsin; seçimin ertesi güne kadar korunur.
+
+---
+
+## 📕 Ordlistan — 2 095 kelime, 10 000'e giden yol
+
+**Ordbanken** sekmesi artık üç modlu:
+
+| Mod | Ne yapar |
+|---|---|
+| ⭐ **Mina ord** | Yıldızladığın kelimeler — tekrar programına giren, SM-2 ile takip edilen liste |
+| 📕 **Hela ordlistan** | **Tüm sözlük, 2 095 kelime.** İsveççe, Türkçe ve örnek cümlelerde arama · konu filtresi · CEFR seviye filtresi · kaynak filtresi (ders / ordlista / kendi kelimelerin) |
+| ⚡ **Skapa & importera** | AI'a konu + seviye + adet verip yeni paket ürettirirsin, ya da hazır CSV'ni yüklersin |
+
+### Sözlük nereden geliyor?
+
+Üç kaynak `dict()` içinde birleşir, `sv` alanına göre tekilleştirilir:
+
+1. **Ders kelimeleri** — 332 kelime, ünitelerin içinden
+2. **Kürasyonlu ordlista** (`vocab.js`) — **1 933 kelime**, elle yazıldı ve tek tek kontrol edildi.
+   Konu dağılımı: veterinärmedicin 268 · humanmedicin 249 · myndigheter & arbetsliv 259 ·
+   vardag 276 · grammatik (verb, adjektiv, funktionsord) 390 · nyheter 214 · uttryck & idiom 277
+3. **Kendi kelimelerin** — ürettiğin paketler ve içe aktardığın CSV'ler (tarayıcında saklanır, yedeğe dahil)
+
+Her kelimede **çekim zorunlu**: `en journal – journalen – journaler`, `att skriva – skriver – skrev –
+har skrivit`, `stor – stort – stora`. Telaffuz Türkçe okunuşla ve vurgulu hece **BÜYÜK** yazılır.
+İpucu alanı Türkçedir: yanlış dost, edat farkı, bileşik kelimenin mantığı ya da Türklerin sık yaptığı hata.
+
+### 10 000'e nasıl çıkarsın?
+
+Sana 1 933 doğru kelime yazdım — 10 000 kelimenin tamamını elle yazıp her birinin `en/ett`'ini ve
+çoğulunu garanti edemem, ve **yanlış bir `en/ett` eksik kelimeden kötüdür**: yıllarca tekrarlarsın.
+O yüzden mimari şöyle: sağlam bir çekirdek + kendi büyütme aracın.
+
+**⚡ Skapa** ile: konu (ya da serbest metin — *"ortopedisk kirurgi"*, *"hästens rörelseapparat"*),
+seviye ve adet (15 / 25 / 50) seç. AI paketi üretir, **kaydetmeden önce listeyi görürsün** —
+çekimi ya da çevirisi şüpheli görüneni işaretten çıkarırsın. Sözlükte zaten olanlar otomatik elenir.
+Promptta açık kural var: *"genus ya da çoğul konusunda emin değilsen BAŞKA BİR KELİME SEÇ."*
+
+Günde iki 50'lik paket = ayda ~3 000 kelime. Üç ayda 10 000'i geçersin, hem de kendi mesleğinin
+kelimeleriyle. **📄 CSV** ile de elindeki hazır listeyi doğrudan yükleyebilirsin
+(`sv,tr` zorunlu; `form, uttal, ex, tip, cat, lvl` isteğe bağlı — örnek şablonu indirebilirsin).
+
+Sözlüğe giren her kelime **her yerde** kullanılır: günün kelimeleri, tekrar programı, arama, filtreler.
+
+## 🛠️ Verktyg — mesleki İsveççe araçları
+
+Bunlar dil alıştırması değil, **işini gördüren araçlar**. Notunu Türkçe, İngilizce ya da karışık yazarsın;
+araç sana kopyalayıp kullanabileceğin profesyonel İsveççe metni verir. Her çıktının altında hangi terimi
+neden seçtiğini anlatan Türkçe not olur — kullanırken öğrenirsin.
+
+| Araç | Ne yapar |
+|---|---|
+| 📋 **Journal-omskrivning** | Dağınık notunu Anamnes / Status / Bedömning / Åtgärd yapısında profesyonel journal metnine çevirir |
+| 🐕 **Djurägarråd** | Klinik bulguyu hasta sahibinin anlayacağı sade İsveççeye çevirir; "ne zaman ara" güvenlik ağı zorunlu |
+| 🩻 **Röntgenutlåtande** | Gözlemlerinden Fynd + Bedömning yapısında rapor yazar, pozisyon/kalite sınırlarını not eder |
+| 💊 **Dos & ordination** | Hesabı adım adım gösterir (mg/kg × kg → mg → ml), kullandığı referans aralığını söyler, tür kontrendikasyonlarını ayrı bir uyarı bloğunda listeler |
+| ✉️ **Kundkommunikation** | Randevu, tedavi bilgisi, sigorta kararı, fatura, teklif, takip ve şikâyet yanıtı |
+
+Ortak kurallar: araç **underlagda olmayan hiçbir bulgu, doz ya da tanı eklemez**; eksik bilgi varsa uydurmak
+yerine *"Underlaget saknar"* listesine yazar. Doz aracında art, kilo, konsantrasyon veya endikasyon eksikse
+**hesap yapmaz**.
+
+> ⚠️ Çıktılar dil taslağıdır, klinik karar değildir. Tıbbi içeriğin, dozun ve endikasyonun doğruluğundan
+> kullanan sorumludur. Doz aracı hesabı açıkça gösterir ki kontrol edebilesin.
 
 ---
 
@@ -164,18 +259,21 @@ Bağımlılık yok, derleme adımı yok — düz HTML/CSS/JS.
 | `index.html` | İskelet, ayarlar modalı, 8 sekme |
 | `style.css` | Tüm stiller, açık/koyu tema |
 | `data.js` | Ders içeriği (7 konu, 33 ünite, 332 kelime) ve günlük içerik promptu |
+| `vocab.js` | **Kürasyonlu ordlista — 1 933 kelime**, hepsi çekimli (en/ett, çoğul, fiilin 4 hâli), telaffuzlu, örnek cümleli |
+| `ordlista.js` | Sözlük katmanı: `dict()` birleştirme, göz atma/arama/filtre, AI paket üreticisi, CSV içe aktarma |
 | `exam-data.js` | 4 standart, görev bankaları, SBAR, departmanlar, değerlendirme promptları |
 | `app.js` | Çekirdek: depolama, durum, streaming API, sv-SE ses/mikrofon, dersler, tekrar, banka, ilerleme |
 | `chat.js` | AI-läraren — streaming, sesli konuşma, düzeltme, rol yapma |
 | `exam.js` | Provdelen — skriva, tala, läsa, lyssna, resultat |
 | `journal.js` | Journalföring — skriva, läsa, förkortningar, mallar |
+| `tools.js` | Verktyg — 5 mesleki İsveççe aracı |
 | `sw.js`, `manifest.json` | Çevrimdışı çalışma ve PWA |
 
 Tüm dinamik içerik `esc()` ile kaçırılır; AI çıktısı hiçbir zaman ham HTML olarak eklenmez.
 Kullanıcı etkileşimleri `data-act` öznitelikleri ve tek bir olay dinleyicisi üzerinden yürür.
 
 ### Yayınlama
-GitHub'da yeni bir repo aç (`svenska-herald`), 11 dosyayı yükle,
+GitHub'da yeni bir repo aç (`svenska-herald`), 14 dosyayı yükle,
 Settings → Pages → Deploy from a branch → varsayılan dal / `(root)` → Save.
 
 ---

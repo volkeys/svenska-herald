@@ -100,6 +100,16 @@
       <div class="goal-set-row" id="goalChipsSettings"></div>
 
       <label class="fld-label toggle-row"><input type="checkbox" id="correctChk"> Rätta min svenska automatiskt i chatten</label>
+
+      <label class="fld-label" for="dailyPromptInput">⚡ Günlük özel prompt</label>
+      <textarea id="dailyPromptInput" class="fld-textarea" rows="5" placeholder="Cowork'te her gün çalıştırdığın promptu buraya yapıştır.&#10;Örn: Bugün için 5 veteriner terimi ver, her birini bir vaka cümlesiyle örnekle ve İsveççe telaffuzunu yaz."></textarea>
+      <div class="btn-row" style="margin:8px 0 0">
+        <button class="btn-ghost btn-xs" data-act="loadVetPackage">⚡ Hazır: Günlük Veteriner Klinik Bilgi Paketi</button>
+        <button class="btn-ghost btn-xs" data-act="clearDailyPrompt">✕ Boşalt</button>
+      </div>
+      <p class="fld-hint">Uygulama her gün <b>bir kez</b> bu promptu çalıştırıp sonucu <b>Dagens</b> sekmesine ayrı bir bölüm olarak ekler.
+        Hazır paket her gün başka bir tür ve sistemden vaka verir: <i>Dagens fall · 5 fackord · journalfras · differentialdiagnoser · läkemedel &amp; dos · djurägarfras · snabbfråga</i>.
+        Kendi promptunu yazmak istersen üzerine yaz; boş bırakırsan bu bölüm görünmez.</p>
     </div>
 
     <!-- DATA -->
@@ -156,6 +166,7 @@
     <button class="nav-btn" data-tab="bank" data-act="switchTab">📚 Ordbanken</button>
     <button class="nav-btn nav-btn-hl" data-tab="exam" data-act="switchTab">🎓 Prov</button>
     <button class="nav-btn nav-btn-hl" data-tab="journal" data-act="switchTab">📋 Journal</button>
+    <button class="nav-btn nav-btn-hl" data-tab="tools" data-act="switchTab">🛠️ Verktyg</button>
     <button class="nav-btn" data-tab="progress" data-act="switchTab">📊 Framsteg</button>
     <button class="nav-btn" data-tab="chat" data-act="switchTab">💬 AI-läraren</button>
   </div>
@@ -169,22 +180,26 @@
   <div id="tabBank" class="tab-pane hidden"></div>
   <div id="tabExam" class="tab-pane hidden"></div>
   <div id="tabJournal" class="tab-pane hidden"></div>
+  <div id="tabTools" class="tab-pane hidden"></div>
   <div id="tabProgress" class="tab-pane hidden"></div>
   <div id="tabChat" class="tab-pane hidden"></div>
 </main>
 
 <footer class="site-footer">
   <span>Svenska Herald · Türkçe'den İsveççeye, ämne för ämne, dag för dag</span>
-  <span class="footer-keys">Kısayollar: <kbd>1-8</kbd> sekmeler · <kbd>Space</kbd> kart çevir · <kbd>Esc</kbd> kapat</span>
+  <span class="footer-keys">Kısayollar: <kbd>1-9</kbd> sekmeler · <kbd>Space</kbd> kart çevir · <kbd>Esc</kbd> kapat</span>
 </footer>
 
 <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
 <script src="data.js"></script>
+<script src="vocab.js"></script>
 <script src="exam-data.js"></script>
 <script src="app.js"></script>
+<script src="ordlista.js"></script>
 <script src="chat.js"></script>
 <script src="exam.js"></script>
 <script src="journal.js"></script>
+<script src="tools.js"></script>
 </body>
 </html>
