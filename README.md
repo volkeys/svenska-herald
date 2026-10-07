@@ -229,6 +229,17 @@ Försäkringskassan, Arbetsförmedlingen & kollektivavtal, Migrationsverket & up
 
 ---
 
+## 🎧 Bibliotek — Litteraturbanken ve Svenska Akademien
+
+Yeni **🎧 Bibliotek** sekmesi:
+- **Verket – en podd om klassiker** (Litteraturbanken · Nationalmuseum · Dramaten): tüm bölümler SoundCloud oynatıcısıyla uygulama içinde
+- **Tio klassiska dikter / noveller**, sesli kitaplar, tarihî radyo kayıtları ve filmler — Litteraturbanken'in kendi sayfasında açılır (kayıtların bir kısmı Sveriges Radio izniyle yalnızca orada yayımlanıyor); şiirlerin metnini okumak için yazar sayfası bağlantıları
+- **Svenska Akademien kitapları:** SAG (4 cilt, ücretsiz PDF), SAOL, SO, SAOB, SAS; *Tid för poesi*, *En bro av poesi*; 50 kitaplık *Svenska klassiker* serisi
+
+**Kelime örnekleri:** 589 kelimenin kartında Svenska Akademiens grammatik'ten seçilmiş doğal bir örnek cümle (Türkçe çevirisi, cilt ve sayfa numarasıyla); her kelimede **SO** (anlam ve örnek cümleler) ve **SAOL** (çekim) bağlantıları. Ders kartlarında, günlük kelime testinde, kelime bankasında ve tekrar kartlarında görünür.
+
+---
+
 ## 🔑 Kurulum
 
 1. https://console.anthropic.com/settings/keys → **Create Key**

@@ -1,10 +1,10 @@
 // Svenska Herald — Service Worker
 // Ders içeriği çevrimdışı çalışsın; AI istekleri asla önbelleğe alınmasın.
-const CACHE = 'svenska-herald-v1.14.0';
+const CACHE = 'svenska-herald-v1.16.0';
 const SHELL = [
   './', './index.html', './style.css',
   './data.js', './vocab.js', './ordlista.js', './exam-data.js', './app.js', './chat.js', './exam.js', './journal.js', './tools.js',
-  './grammar-data.js', './grammar.js', './daily-words.js',
+  './grammar-data.js', './grammar.js', './daily-words.js', './sag-examples.js', './bibliotek.js',
   './manifest.json', './icon-180.png', './icon-192.png', './icon-512.png',
 ];
 

@@ -450,7 +450,7 @@ function applyTheme() {
 }
 
 // ── SEKMELER ─────────────────────────────────────────────
-const TAB_IDS = ['lessons', 'daily', 'review', 'bank', 'exam', 'journal', 'tools', 'progress', 'chat'];
+const TAB_IDS = ['lessons', 'daily', 'review', 'bank', 'exam', 'journal', 'tools', 'progress', 'chat', 'library'];
 function switchTab(tabId) {
   if (!TAB_IDS.includes(tabId)) return;
   if (S.tab === 'chat' && tabId !== 'chat') window.Chat?.onLeave?.();
@@ -476,6 +476,7 @@ function renderTab(tabId) {
   else if (tabId === 'tools') pane.innerHTML = window.Tools ? Tools.render() : '';
   else if (tabId === 'progress') pane.innerHTML = renderProgress();
   else if (tabId === 'chat') { pane.innerHTML = window.Chat ? Chat.render() : ''; window.Chat?.afterRender?.(); }
+  else if (tabId === 'library') pane.innerHTML = window.Library ? Library.render() : '';
 }
 
 function pill(color, txt, sm) {
@@ -562,6 +563,7 @@ function vocabCardHTML(w, i, src, cat) {
     ${flipped ? `<div class="vocab-extra">
       ${w.ex ? `<div class="vocab-ex">"${esc(w.ex)}"</div>` : ''}
       ${w.tip ? `<div class="vocab-tip" style="color:${lc};background:${lc}18">💡 ${esc(w.tip)}</div>` : ''}
+      ${window.SAX ? SAX.block(w.sv) : ''}
     </div>` : ''}
     <div class="vocab-actions">
       <button class="vocab-speak-btn" data-act="speak" data-text="${attr(w.sv)}" aria-label="Uttal">🔊</button>
@@ -973,6 +975,7 @@ function renderReview() {
     ${w.form ? `<div class="fc-form">${esc(w.form)}</div>` : ''}
     ${w.ex ? `<div class="fc-ex">"${esc(w.ex)}"</div>` : ''}
     ${w.tip ? `<div class="fc-tip-box">💡 ${esc(w.tip)}</div>` : ''}
+    ${window.SAX ? SAX.block(w.sv) : ''}
     <div class="fc-rating">
       <button style="background:var(--red);color:#fff" data-act="rateCard" data-q="1">😟 Svårt <kbd>1</kbd></button>
       <button style="background:var(--gold);color:#fff" data-act="rateCard" data-q="3">🙂 Okej <kbd>2</kbd></button>
@@ -1048,6 +1051,7 @@ function bankGridHTML() {
       <div class="bank-card-tr">${esc(w.tr)}</div>
       ${w.form ? `<div class="bank-card-form">${esc(w.form)}</div>` : ''}
       ${w.ex ? `<div class="bank-card-ex">"${esc(w.ex)}"</div>` : ''}
+      ${window.SAX ? SAX.mini(w.sv) : ''}
       <button class="bank-card-del" data-act="deleteWord" data-sv="${attr(w.sv)}" aria-label="Ta bort">✕</button>
     </div>`;
   }).join('')}</div>`;
