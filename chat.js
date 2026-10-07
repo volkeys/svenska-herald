@@ -57,6 +57,7 @@ GRUNDREGLER
 - Anpassa svårighetsgraden till nivå ${S.cfg.level}.
 - Avsluta med EN fråga som får eleven att producera svenska.
 - Hitta inte på fakta. Är du osäker, säg det.
+- Språknorm: följ Svenska Akademien — Svenska Akademiens grammatik (SAG) för grammatik och Svenska Akademiens ordlista (SAOL) för böjningsformer och stavning. Vid variation: lär ut SAOL:s/SAG:s standardform och nämn kort talspråkliga varianter. Hänvisa gärna till SAG-kapitlet när du förklarar en regel.
 - Fokusområde: ${topicLabel}.`;
 
   if (recent) p += `\n- Elevens senast sparade ord (återanvänd dem naturligt om det passar): ${recent}.`;
