@@ -40,7 +40,17 @@
       box.innerHTML = `<iframe class="lib-sc" title="${attr(d.title || 'SoundCloud')}" scrolling="no" frameborder="no" allow="autoplay"
         src="https://w.soundcloud.com/player/?url=${encodeURIComponent(d.sc)}&color=%23a07de8&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=false"></iframe>`;
     },
-    libMore: (d) => { S.libOpen = S.libOpen || {}; S.libOpen[d.k] = !S.libOpen[d.k]; renderTab('library'); },
+    libMore: (d, el) => {
+      const box = el.closest('.lib-list'); if (!box) return;
+      const open = box.classList.toggle('open');
+      el.textContent = open ? 'Daha az göster ▴' : `Tümünü göster (${el.dataset.n}) ▾`;
+    },
+    srLoad: (d) => srLoad(d.k),
+    srPlay: (d) => {
+      const box = document.getElementById('srp-' + d.k); if (!box) return;
+      box.innerHTML = srFrame(d.id, d.title);
+      box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    },
   });
 
   // ── 2) KÜTÜPHANE VERİSİ ───────────────────────────────────
@@ -155,17 +165,107 @@
     return `<section class="panel lib-sec" id="lib-${id}"><div class="lib-h"><span class="lib-ic">${icon}</span><div><div class="lib-t">${esc(title)}${lvl ? ` <span class="lib-lvl">${esc(lvl)}</span>` : ''}</div>${sub ? `<div class="lib-sub">${sub}</div>` : ''}</div></div>${body}</section>`;
   }
   function more(k, list, n, row) {
-    const open = S.libOpen?.[k];
-    return list.slice(0, open ? list.length : n).map(row).join('') + (list.length > n ? `<button class="dw-more" data-act="libMore" data-k="${k}">${open ? 'Daha az göster ▴' : `Tümünü göster (${list.length}) ▾`}</button>` : '');
+    return list.map((x, i) => i < n ? row(x) : `<div class="lib-x">${row(x)}</div>`).join('') + (list.length > n ? `<button class="dw-more" data-act="libMore" data-k="${k}" data-n="${list.length}">Tümünü göster (${list.length}) ▾</button>` : '');
+  }
+
+  // ── SVERIGES RADIO ────────────────────────────────────────
+  // Resmî gömme oynatıcı: sverigesradio.se/embed/episode/{id}. Bölüm listesi SR'nin açık API'sinden
+  // (api.sr.se) tarayıcıda çekilir; erişilemezse program sayfası bağlantısı gösterilir.
+  // SR koşulları: yalnızca bağlantı/akış, içerik değiştirilmez, kaynak açıkça "Sveriges Radio".
+  const SR = [
+    // [anahtar, ad, programid (doğrulanmış) ya da null → adla aranır, seviye, Türkçe açıklama, kategori]
+    ['latt', 'Radio Sweden på lätt svenska', 4916, 'A2–B1', 'Her gün birkaç dakikalık haber; yavaş ve kolay İsveççe. SFI\'da kullanılıyor. Metni de sitede var — önce dinle, sonra metinle kontrol et.', 'kolay'],
+    ['klartext', 'Klartext', null, 'B1', 'P4\'ün sade dilli haber bülteni; Radio Sweden\'dan biraz daha hızlı.', 'kolay'],
+    ['ekot', 'Ekot', null, 'B2', 'Sveriges Radio\'nun ana haber programı; gerçek hızda, sadeleştirilmemiş haber dili.', 'orta'],
+    ['kropp', 'Kropp och själ', null, 'B2', 'Sağlık, tıp ve psikoloji üzerine P1 programı — mesleğine yakın kelime hazinesi.', 'orta'],
+    ['vetenskap', 'Vetenskapsradion', null, 'B2', 'Bilim haberleri; araştırma, sağlık ve hayvanlar dahil.', 'orta'],
+    ['spraket', 'Språket', null, 'B2', 'Dil soruları ve kelimelerin kökeni; Språkrådet uzmanlarıyla.', 'orta'],
+    ['sommar', 'Sommar & Vinter i P1', null, 'B2–C1', 'İsveç\'in en çok dinlenen programı: tanınmış kişiler kendi hayat hikâyelerini anlatıyor.', 'ileri'],
+    ['p3dok', 'P3 Dokumentär', 2519, 'C1', 'İsveç\'in en popüler belgesel podcastı; yakın tarih ve önemli olaylar.', 'ileri'],
+    ['p3hist', 'P3 Historia', null, 'C1', 'Tarihî olaylar ve kişiler, anlatı biçiminde.', 'ileri'],
+    ['lordag', 'Ekots lördagsintervju', null, 'C1', 'Cumartesi günleri politikacılarla uzun röportaj; resmî ve tartışmacı dil.', 'ileri'],
+  ];
+  const SRK = Object.fromEntries(SR.map(r => [r[0], r]));
+  const srCache = {};
+  function srFrame(id, title) {
+    return `<iframe class="sr-frame" title="${attr(title || 'Sveriges Radio')}" src="https://sverigesradio.se/embed/episode/${encodeURIComponent(id)}" frameborder="0" allow="autoplay" loading="lazy"></iframe>
+      <div class="sr-credit">Ljud: <b>Sveriges Radio</b></div>`;
+  }
+  function srGet(path) {   // önce CORS fetch, olmazsa JSONP
+    const url = 'https://api.sr.se/api/v2/' + path + (path.includes('?') ? '&' : '?') + 'format=json';
+    return fetch(url).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }).catch(() => new Promise((res, rej) => {
+      const cb = '__sr' + Math.random().toString(36).slice(2), s = document.createElement('script');
+      const done = (v, e) => { clearTimeout(tm); delete window[cb]; s.remove(); e ? rej(e) : res(v); };
+      const tm = setTimeout(() => done(null, new Error('timeout')), 8000);
+      window[cb] = v => done(v); s.onerror = () => done(null, new Error('jsonp'));
+      s.src = url + '&callback=' + cb; document.head.appendChild(s);
+    }));
+  }
+  async function srProgramId(r) {
+    if (r[2]) return r[2];
+    const k = 'sh_srpid_' + r[0], c = LS.get(k, null); if (c) return c;
+    const d = await srGet('programs/search?query=' + encodeURIComponent(r[1]) + '&size=10');
+    const norm = s => String(s || '').toLowerCase().replace(/[&]/g, 'och').replace(/\s+/g, ' ').trim();
+    const list = d?.programs || [];
+    const hit = list.find(p => norm(p.name) === norm(r[1])) || list.find(p => norm(p.name).includes(norm(r[1])));
+    if (!hit) throw new Error('not found');
+    LS.set(k, hit.id); return hit.id;
+  }
+  function srDate(s) { const m = /Date\((\d+)/.exec(s || ''); return m ? new Date(+m[1]).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }) : ''; }
+  async function srLoad(k) {
+    const r = SRK[k], box = document.getElementById('srl-' + k); if (!r || !box) return;
+    box.innerHTML = '<div class="lib-note">Bölümler yükleniyor…</div>';
+    try {
+      const id = await srProgramId(r);
+      const d = srCache[id] || (srCache[id] = await srGet('episodes/index?programid=' + id + '&size=6'));
+      const eps = (d?.episodes || []).filter(e => e.id);
+      if (!eps.length) throw new Error('empty');
+      box.innerHTML = `<div id="srp-${k}" class="sr-player">${srFrame(eps[0].id, eps[0].title)}</div>
+        <div class="sr-eps">${eps.map(e => `<button class="sr-ep" data-act="srPlay" data-k="${k}" data-id="${attr(e.id)}" data-title="${attr(e.title)}">
+          <span class="sr-ep-t">▶ ${esc(e.title)}</span><span class="sr-ep-d">${esc(srDate(e.publishdateutc))}</span></button>`).join('')}</div>
+        <div class="lib-foot">${link('https://sverigesradio.se/avsnitt?programid=' + id, 'Tüm bölümler — Sveriges Radio ↗')}</div>`;
+    } catch (e) {
+      const url = r[2] ? 'https://sverigesradio.se/avsnitt?programid=' + r[2] : 'https://sverigesradio.se/sok?query=' + encodeURIComponent(r[1]);
+      box.innerHTML = `<div class="lib-note">Bölüm listesi şu an yüklenemedi. ${link(url, 'Sveriges Radio\'da dinle ↗')}</div>`;
+    }
+  }
+  function srCard(r) {
+    const [k, name, , lvl, desc] = r;
+    return `<div class="sr-card"><div class="sr-card-h"><b>${esc(name)}</b> <span class="lib-lvl">${esc(lvl)}</span></div>
+      <div class="lib-desc">${esc(desc)}</div>
+      <div id="srl-${k}" class="sr-box"><button class="btn-ghost btn-xs" data-act="srLoad" data-k="${k}">▶ Son bölümleri getir ve dinle</button></div></div>`;
+  }
+
+  // ── EN ÇOK DİNLENENLER (öneri) ────────────────────────────
+  // Kaynak: poddkoll.se topplista, 7 Ekim 2026 (gerçek dinlenme rakamlarına dayalı, ölçüm kuruluşu belirtilmemiş)
+  const TOP = [
+    ['Rättegångspodden', '', 'Gerçek mahkeme kayıtları; hukuk dili ve resmî konuşma (zor).'],
+    ['P3 Dokumentär', 'p3dok', 'Sveriges Radio — yukarıdan uygulama içinde dinleyebilirsin.'],
+    ['Svenska fall podcast', '', 'İsveç\'teki suç vakaları.'],
+    ['ursäkta', '', 'Mizah ve sohbet.'],
+    ['Spöktimmen', '', 'Doğaüstü hikâyeler; anlatı dili.'],
+    ['Kansli – med Jessica & Sebastian', '', 'Gündelik sohbet.'],
+    ['Alex & Sigges podcast', '', 'İki yazarın haftalık sohbeti; doğal, hızlı konuşma dili.'],
+    ['Historiepodden', '', 'Tarih; açık ve düzenli anlatım.'],
+    ['Fallen jag aldrig glömmer', '', 'Eski bir polisin anlattığı vakalar.'],
+    ['Framgångspodden', '', 'Röportajlar: kariyer, sağlık, hayat.'],
+  ];
+  const spot = n => 'https://open.spotify.com/search/' + encodeURIComponent(n) + '/podcasts';
+  const apple = n => 'https://podcasts.apple.com/se/search?term=' + encodeURIComponent(n);
+  function scFrame(url, title, h) {
+    return `<iframe class="lib-sc" style="height:${h}px" title="${attr(title)}" scrolling="no" frameborder="no" allow="autoplay" loading="lazy"
+      src="https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%23a07de8&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=false"></iframe>`;
   }
   function render() {
     const nEx = Object.keys(window.SAG_EX || {}).length;
-    const nav = [['verket', '🎙️ Podcast'], ['dikter', '📜 Şiirler'], ['noveller', '📖 Öyküler'], ['ljud', '🎧 Diğer kayıtlar'], ['film', '🎬 Filmler'], ['sa', '📘 Svenska Akademien']]
+    const nav = [['sr', '📻 Sveriges Radio'], ['topp', '🔥 En çok dinlenenler'], ['verket', '🎙️ Verket'], ['dikter', '📜 Şiirler'], ['noveller', '📖 Öyküler'], ['ljud', '🎧 Diğer kayıtlar'], ['film', '🎬 Filmler'], ['sa', '📘 Svenska Akademien']]
       .map(([k, t]) => `<a href="#lib-${k}" data-act="libJump" data-k="${k}">${t}</a>`).join('');
     const verket = sec('verket', '🎙️', 'Verket – en podd om klassiker', 'Litteraturbanken · Nationalmuseum · Dramaten · Stockholms universitet',
       `<p class="lib-p">Her bölümde bir edebiyat ya da sanat uzmanı tek bir klasik eseri doğal, akıcı İsveççeyle anlatıyor. Gerçek konuşma dilini dinlemek için çok iyi; önce eserin kısa özetini oku, sonra dinle.</p>
-       <div id="libSc" class="lib-embed"><button class="btn-primary lib-play" data-act="libEmbed" data-box="libSc" data-sc="https://soundcloud.com/verketpodcast" data-title="Verket – en podd om klassiker">▶ Tüm bölümleri burada dinle (SoundCloud)</button>
-         <div class="lib-note">Oynatıcı SoundCloud'dan yüklenir; tüm bölümler listede çıkar.</div></div>
+       <div class="lib-embed">${scFrame('https://soundcloud.com/verketpodcast', 'Verket – en podd om klassiker', 450)}
+         <div class="lib-note">Tüm bölümler oynatıcının listesinde. Ses: Litteraturbanken / Verket (SoundCloud).</div></div>
+       <div class="lib-h4">Son bölüm: Barnen ifrån Frostmofjället</div>
+       <div class="lib-embed">${scFrame('https://soundcloud.com/verketpodcast/47-barnen-ifra-n-frostmofja', 'Verket: Barnen ifrån Frostmofjället', 166)}</div>
        <div class="lib-list">${VERKET.map(([u, t, a, d]) => `<div class="lib-row"><div class="lib-row-main"><b>${esc(t)}</b> <span class="lib-meta">${esc(a)}</span>${d ? `<div class="lib-desc">${esc(d)}</div>` : ''}</div>${link(LB + u, 'Bölüm sayfası ↗', 'lib-btn')}</div>`).join('')}</div>
        <div class="lib-foot">${link(LB + 'verket/', 'Tüm bölümler (Litteraturbanken) ↗')}</div>`, 'B2–C1');
     const dikter = sec('dikter', '📜', 'Tio klassiska dikter', 'On klasik şiir — oyuncuların ve şairlerin kendi seslerinden',
@@ -190,11 +290,20 @@
        <h4 class="lib-h4">Svenska klassiker serisi (${KLASSIKER.length} kitap)</h4>
        <p class="lib-p">Svenska Akademien'in klasik eser dizisi. Klasik yazarların eserlerinin çoğunu ${link('https://litteraturbanken.se/', 'Litteraturbanken')}'de ücretsiz okuyabilirsin.</p>
        <div class="lib-list">${more('klassiker', KLASSIKER, 10, ([t, a, slug]) => `<div class="lib-row"><div class="lib-row-main"><b>${esc(t)}</b> <span class="lib-meta">${esc(a)}</span></div>${link(SA + 'svenska-klassiker/' + slug, 'Kitap ↗', 'lib-btn')}</div>`)}</div>`, '');
+    const grp = (g, t) => `<h4 class="lib-h4">${t}</h4><div class="sr-grid">${SR.filter(r => r[5] === g).map(srCard).join('')}</div>`;
+    const sr = sec('sr', '📻', 'Sveriges Radio — podcastlar', 'Uygulama içinde dinle · Ljud: Sveriges Radio',
+      `<p class="lib-p">Seviyene göre sıralandı. Önce <b>kolay</b> programlarla başla; haberleri anlıyorsan <b>orta</b>, uzun anlatıları takip edebiliyorsan <b>ileri</b> seviyeye geç. Her programda en yeni bölümler listelenir ve SR'nin kendi oynatıcısıyla burada çalar.</p>
+       ${grp('kolay', '🟢 Kolay — öğrenenler için')}${grp('orta', '🟡 Orta — gerçek hızda, net konuşma')}${grp('ileri', '🔴 İleri — uzun anlatı ve tartışma')}`, 'A2–C1');
+    const topp = sec('topp', '🔥', 'En çok dinlenen podcastlar — öneri', 'İsveç topplistan: poddkoll.se, 7 Ekim 2026',
+      `<p class="lib-p">İsveçlilerin şu an en çok dinlediği podcastlar. Bunlar doğal, hızlı günlük İsveççedir — B2 ve üstü için iyi bir hedef. Liste düzenli değişir.</p>
+       <div class="lib-list">${TOP.map(([n, k, d], i) => `<div class="lib-row"><div class="lib-row-main"><span class="top-n">${i + 1}</span><b>${esc(n)}</b>${k ? ' <span class="lib-tag">Sveriges Radio</span>' : ''}<div class="lib-desc">${esc(d)}</div></div>
+         <div class="lib-acts">${k ? `<button class="lib-btn" data-act="libJump" data-k="sr">▶ Burada dinle</button>` : `${link(spot(n), 'Spotify ↗', 'lib-btn')}${link(apple(n), 'Apple ↗', 'lib-btn')}`}</div></div>`).join('')}</div>
+       <div class="lib-foot">${link('https://poddkoll.se/topplista', 'Güncel liste: poddkoll.se ↗')} · ${link('https://www.sverigesradio.se/artikel/topplista-mest-lyssnade-sommarpraten-2026', 'En çok dinlenen Sommar bölümleri 2026 ↗')}</div>`, '');
     return `<div class="fade-in lib">
       <div class="section-head"><h2 class="pane-h2">🎧 Bibliotek</h2><span class="lib-sub">Dinle, izle, oku — Litteraturbanken ve Svenska Akademien</span></div>
       <div class="lib-nav">${nav}</div>
-      <div class="lib-callout">Kayıtlar <b>Litteraturbanken</b>'in kendi sayfasında açılır (bir kısmı Sveriges Radio ve hak sahiplerinin izniyle yalnızca orada yayımlanıyor). Verket podcastı burada SoundCloud oynatıcısıyla da dinlenebilir.</div>
-      ${verket}${dikter}${noveller}${ljud}${film}${sa}</div>`;
+      <div class="lib-callout">📻 <b>Sveriges Radio</b> ve 🎙️ <b>Verket</b> podcastları burada, uygulamanın içinde çalar. Litteraturbanken'in şiir, öykü ve film kayıtları telif nedeniyle onların sitesinde açılır.</div>
+      ${sr}${topp}${verket}${dikter}${noveller}${ljud}${film}${sa}</div>`;
   }
   ACTIONS.libJump = (d) => { const el = document.getElementById('lib-' + d.k); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 
