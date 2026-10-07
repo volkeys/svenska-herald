@@ -46,11 +46,18 @@
       el.textContent = open ? 'Daha az göster ▴' : `Tümünü göster (${el.dataset.n}) ▾`;
     },
     srLoad: (d) => srLoad(d.k),
-    srPlay: (d) => {
+    srPlay: (d, el) => {
       const box = document.getElementById('srp-' + d.k); if (!box) return;
-      box.innerHTML = srFrame(d.id, d.title);
-      box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      box.innerHTML = audioHTML(d.src, d.title, 'Sveriges Radio', true);
+      el.closest('.sr-eps')?.querySelectorAll('.sr-ep').forEach(b => b.classList.toggle('on', b === el));
     },
+    libAudio: (d, el) => {            // Litteraturbanken kayıtları: satırın içinde çal
+      const box = document.getElementById(d.box); if (!box) return;
+      if (box.dataset.on === d.src) { box.innerHTML = ''; box.dataset.on = ''; return; }
+      document.querySelectorAll('.lib-inl').forEach(b => { if (b !== box) { b.innerHTML = ''; b.dataset.on = ''; } });
+      box.dataset.on = d.src; box.innerHTML = audioHTML(d.src, d.title, d.credit || 'Litteraturbanken', true);
+    },
+    libApple: (d) => appleLoad(d.box, d.q),
   });
 
   // ── 2) KÜTÜPHANE VERİSİ ───────────────────────────────────
@@ -65,28 +72,28 @@
     ['2024/12/11/verket-jag-kommer-av-ett-brusand-hav/', 'Jag kommer av ett brusand\' hav', 'Evert Taube', 'Taube\'nin denizle ilgili şarkı ve şiirleri.'],
   ];
   const DIKTER = [
-    ['Den nya skapelsen', 'Johan Henric Kellgren', 'KellgrenJH'],
-    ['Några ord till min k. Dotter, i fall jag hade någon', 'Anna Maria Lenngren', 'LenngrenAM'],
-    ['Vän! i förödelsens stund', 'Erik Johan Stagnelius', 'StagneliusEJ'],
-    ['Dagen svalnar …', 'Edith Södergran', 'SödergranE'],
-    ['En gamling', 'Dan Andersson', 'AnderssonD'],
-    ['Tag mig. – Håll mig. – Smek mig sakta', 'Harriet Löwenhjelm', 'LöwenhjelmH'],
-    ['Ja visst gör det ont', 'Karin Boye (kendi sesinden)', 'BoyeK'],
-    ['När skönheten kom till byn', 'Nils Ferlin (kendi sesinden, 1939)', 'FerlinN'],
-    ['Dikten', 'Kerstin Söderholm', 'SöderholmK'],
-    ['Kväll i inlandet', 'Harry Martinson', 'MartinsonH'],
+    ['Den nya skapelsen', 'Johan Henric Kellgren', 'KellgrenJH', 'https://litteraturbanken.se/ljudochbild/wp-content/uploads/2019/09/kellgren_dennyaskapelsen_engdahl.mp3'],
+    ['Några ord till min k. Dotter, i fall jag hade någon', 'Anna Maria Lenngren', 'LenngrenAM', 'https://litteraturbanken.se/ljudochbild/wp-content/uploads/2019/09/lenngren_nagraordtillminkaradotter_engdahl.mp3'],
+    ['Vän! i förödelsens stund', 'Erik Johan Stagnelius', 'StagneliusEJ', 'https://litteraturbanken.se/ljudochbild/wp-content/uploads/2020/03/stagnelius_vanIforodelsensstund_berglund.mp3'],
+    ['Dagen svalnar …', 'Edith Södergran', 'SödergranE', 'https://litteraturbanken.se/ljudochbild/wp-content/uploads/2019/09/sodergran_dagensvalnar_pleijel.mp3'],
+    ['En gamling', 'Dan Andersson', 'AnderssonD', 'https://litteraturbanken.se/ljudochbild/wp-content/uploads/2020/03/andersson_engamling_berglund.mp3'],
+    ['Tag mig. – Håll mig. – Smek mig sakta', 'Harriet Löwenhjelm', 'LöwenhjelmH', 'https://litteraturbanken.se/ljudochbild/wp-content/uploads/2019/09/lowenhjelm_tagmighallmigsmekmigsakta_pleijel.mp3'],
+    ['Ja visst gör det ont', 'Karin Boye (kendi sesinden)', 'BoyeK', 'https://litteraturbanken.se/ljudochbild/wp-content/uploads/2019/09/boye_javisstgordetont_boye.mp3'],
+    ['När skönheten kom till byn', 'Nils Ferlin (kendi sesinden, 1939)', 'FerlinN', 'https://litteraturbanken.se/ljudochbild/wp-content/uploads/2020/12/ferlin_narskonhetenkomtillbyn_1939_ferlin.mp3'],
+    ['Dikten', 'Kerstin Söderholm', 'SöderholmK', 'https://litteraturbanken.se/ljudochbild/wp-content/uploads/2019/06/soderholm_dikten_holmberg.mp3'],
+    ['Kväll i inlandet', 'Harry Martinson', 'MartinsonH', 'https://litteraturbanken.se/ljudochbild/wp-content/uploads/2020/03/martinson_kvalliinlandet_berglund.mp3'],
   ];
   const NOVELLER = [
-    ['Ett halvt ark papper', 'August Strindberg', 'Tek sayfalık, çok sade dilli ünlü öykü — başlamak için ideal.'],
-    ['Ur mörkret', 'Victoria Benedictsson', ''],
-    ['Bortbytingen', 'Selma Lagerlöf', 'Lagerlöf\'ün masalsı öyküsü.'],
-    ['Pyrrhussegrar', 'Stella Kleve (Mathilda Malling)', ''],
-    ['Pelsen', 'Hjalmar Söderberg', 'Söderberg\'in kısa, ironik Stockholm öykülerinden.'],
-    ['Käringamötet', 'Elin Wägner', ''],
-    ['Åbrodd och lilja', 'Ivar Lo-Johansson', ''],
-    ['Staden', 'Eva Neander', ''],
-    ['Pingstbrud', 'Tage Aurell (kendi sesinden, 1949)', ''],
-    ['Att döda ett barn', 'Stig Dagerman (kendi sesinden, 1952)', 'Kısa ve çok güçlü bir öykü; trafik güvenliği kampanyası için yazıldı.'],
+    ['Ett halvt ark papper', 'August Strindberg', 'Tek sayfalık, çok sade dilli ünlü öykü — başlamak için ideal.', 'https://litteraturbanken.se/ljudochbild/wp-content/uploads/2020/02/strindberg_etthalvtarkpapper_elam.mp3'],
+    ['Ur mörkret', 'Victoria Benedictsson', '', 'https://litteraturbanken.se/ljudochbild/wp-content/uploads/2019/09/benedictsson_urmorkret_schiefauer.mp3'],
+    ['Bortbytingen', 'Selma Lagerlöf', 'Lagerlöf\'ün masalsı öyküsü.', 'https://litteraturbanken.se/ljudochbild/wp-content/uploads/2022/05/lagerlof_bortbytingen_meidal.mp3'],
+    ['Pyrrhussegrar', 'Stella Kleve (Mathilda Malling)', '', 'https://litteraturbanken.se/ljudochbild/wp-content/uploads/2020/02/kleve_pyrrhussegrar_elam.mp3'],
+    ['Pelsen', 'Hjalmar Söderberg', 'Söderberg\'in kısa, ironik Stockholm öykülerinden.', 'https://litteraturbanken.se/ljudochbild/wp-content/uploads/2021/02/soderberg_pelsen_strandberg.mp3'],
+    ['Käringamötet', 'Elin Wägner', '', 'https://litteraturbanken.se/ljudochbild/wp-content/uploads/2020/02/wagner_karingamotet_elam.mp3'],
+    ['Åbrodd och lilja', 'Ivar Lo-Johansson', '', 'https://litteraturbanken.se/ljudochbild/wp-content/uploads/2019/09/lojohansson_abroddochlilja_schiefauer.mp3'],
+    ['Staden', 'Eva Neander', '', 'https://litteraturbanken.se/ljudochbild/wp-content/uploads/2020/02/neander_staden_elam.mp3'],
+    ['Pingstbrud', 'Tage Aurell (kendi sesinden, 1949)', '', 'https://litteraturbanken.se/ljudochbild/wp-content/uploads/2020/05/aurell_pingstbrud_aurell.mp3'],
+    ['Att döda ett barn', 'Stig Dagerman (kendi sesinden, 1952)', 'Kısa ve çok güçlü bir öykü; trafik güvenliği kampanyası için yazıldı.', 'https://litteraturbanken.se/ljudochbild/wp-content/uploads/2021/10/dagerman_attdodaettbarn_dagerman.mp3'],
   ];
   const LJUD = [
     ['2021/10/31/att-doda-ett-barn-2/', 'Att döda ett barn', 'Stig Dagerman öyküsünü kendisi okuyor.'],
@@ -175,7 +182,7 @@
   const SR = [
     // [anahtar, ad, programid (doğrulanmış) ya da null → adla aranır, seviye, Türkçe açıklama, kategori]
     ['latt', 'Radio Sweden på lätt svenska', 4916, 'A2–B1', 'Her gün birkaç dakikalık haber; yavaş ve kolay İsveççe. SFI\'da kullanılıyor. Metni de sitede var — önce dinle, sonra metinle kontrol et.', 'kolay'],
-    ['klartext', 'Klartext', null, 'B1', 'P4\'ün sade dilli haber bülteni; Radio Sweden\'dan biraz daha hızlı.', 'kolay'],
+    ['klartext', 'Klartext', null, 'B1', 'P4\'ün sade dilli haber bülteni; Radio Sweden\'dan biraz daha hızlı.', 'kolay', ['Klartext P4', 'Klartext – nyheter på lätt svenska', 'Ekot Klartext']],
     ['ekot', 'Ekot', null, 'B2', 'Sveriges Radio\'nun ana haber programı; gerçek hızda, sadeleştirilmemiş haber dili.', 'orta'],
     ['kropp', 'Kropp och själ', null, 'B2', 'Sağlık, tıp ve psikoloji üzerine P1 programı — mesleğine yakın kelime hazinesi.', 'orta'],
     ['vetenskap', 'Vetenskapsradion', null, 'B2', 'Bilim haberleri; araştırma, sağlık ve hayvanlar dahil.', 'orta'],
@@ -187,9 +194,37 @@
   ];
   const SRK = Object.fromEntries(SR.map(r => [r[0], r]));
   const srCache = {};
-  function srFrame(id, title) {
-    return `<iframe class="sr-frame" title="${attr(title || 'Sveriges Radio')}" src="https://sverigesradio.se/embed/episode/${encodeURIComponent(id)}" frameborder="0" allow="autoplay" loading="lazy"></iframe>
-      <div class="sr-credit">Ljud: <b>Sveriges Radio</b></div>`;
+  function audioHTML(src, title, credit, autoplay) {
+    // Sayfa içi HTML5 ses oynatıcı — dosya kaynağın kendi sunucusundan akış olarak çalınır (kopyalanmaz)
+    return `<div class="au"><div class="au-t">${esc(title || '')}</div>
+      <audio class="au-el" controls preload="none" ${autoplay ? 'autoplay' : ''} src="${attr(src)}"></audio>
+      <div class="au-c">Ljud: <b>${esc(credit)}</b> · <span class="au-sp">Hız: ${[0.75, 0.9, 1, 1.25].map(r => `<button class="au-r" data-act="auRate" data-r="${r}">${r}×</button>`).join('')}</span></div></div>`;
+  }
+  ACTIONS.auRate = (d, el) => { const a = el.closest('.au')?.querySelector('audio'); if (a) { a.playbackRate = +d.r; el.parentElement.querySelectorAll('.au-r').forEach(b => b.classList.toggle('on', b === el)); } };
+  function jsonp(url) {
+    return new Promise((res, rej) => {
+      const cb = '__jp' + Math.random().toString(36).slice(2), s = document.createElement('script');
+      const done = (v, e) => { clearTimeout(tm); delete window[cb]; s.remove(); e ? rej(e) : res(v); };
+      const tm = setTimeout(() => done(null, new Error('timeout')), 8000);
+      window[cb] = v => done(v); s.onerror = () => done(null, new Error('jsonp'));
+      s.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb; document.head.appendChild(s);
+    });
+  }
+  // Apple Podcasts: iTunes arama API'si → resmî gömülü oynatıcı (embed.podcasts.apple.com), tüm bölümler sayfa içinde
+  async function appleLoad(boxId, q) {
+    const box = document.getElementById(boxId); if (!box) return;
+    if (box.dataset.on) { box.innerHTML = ''; box.dataset.on = ''; return; }
+    box.dataset.on = '1'; box.innerHTML = '<div class="lib-note">Oynatıcı yükleniyor…</div>';
+    try {
+      const d = await jsonp('https://itunes.apple.com/search?media=podcast&country=se&limit=5&term=' + encodeURIComponent(q));
+      const n = s => String(s || '').toLowerCase().replace(/[^a-zåäö0-9]+/g, '');
+      const r = (d?.results || []).find(x => n(x.collectionName) === n(q)) || (d?.results || []).find(x => n(x.collectionName).includes(n(q))) || d?.results?.[0];
+      if (!r?.collectionViewUrl) throw new Error('none');
+      const src = r.collectionViewUrl.split('?')[0].replace('https://podcasts.apple.com/', 'https://embed.podcasts.apple.com/');
+      box.innerHTML = `<iframe class="ap-frame" title="${attr(r.collectionName)}" src="${attr(src)}" allow="autoplay *; encrypted-media *; clipboard-write"
+        sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation" loading="lazy"></iframe>
+        <div class="au-c">${esc(r.collectionName)} · ${esc(r.artistName || '')} · oynatıcı: Apple Podcasts</div>`;
+    } catch (e) { box.dataset.on = ''; box.innerHTML = '<div class="lib-note">Oynatıcı yüklenemedi. Biraz sonra tekrar dene.</div>'; }
   }
   function srGet(path) {   // önce CORS fetch, olmazsa JSONP
     const url = 'https://api.sr.se/api/v2/' + path + (path.includes('?') ? '&' : '?') + 'format=json';
@@ -201,16 +236,25 @@
       s.src = url + '&callback=' + cb; document.head.appendChild(s);
     }));
   }
+  let srAll = null;
   async function srProgramId(r) {
     if (r[2]) return r[2];
-    const k = 'sh_srpid_' + r[0], c = LS.get(k, null); if (c) return c;
-    const d = await srGet('programs/search?query=' + encodeURIComponent(r[1]) + '&size=10');
-    const norm = s => String(s || '').toLowerCase().replace(/[&]/g, 'och').replace(/\s+/g, ' ').trim();
-    const list = d?.programs || [];
-    const hit = list.find(p => norm(p.name) === norm(r[1])) || list.find(p => norm(p.name).includes(norm(r[1])));
+    const k = 'sh_srpid2_' + r[0], c = LS.get(k, null); if (c) return c;
+    const norm = s => String(s || '').toLowerCase().replace(/&/g, 'och').replace(/[^a-zåäö0-9]+/g, '');
+    const names = [r[1]].concat(r[6] || []).map(norm);
+    const exact = list => list.find(p => names.includes(norm(p.name)));
+    const loose = list => list.find(p => names.some(nm => norm(p.name).startsWith(nm)));
+    let found = [];
+    try { const d = await srGet('programs/search?query=' + encodeURIComponent(r[1]) + '&size=20'); found = d?.programs || []; } catch {}
+    let hit = exact(found);
+    if (!hit) {   // tüm program listesinde tam ad (bir kez indirilir)
+      try { if (!srAll) { const d = await srGet('programs/index?pagination=false&isarchived=false'); srAll = d?.programs || []; } } catch { srAll = srAll || []; }
+      hit = exact(srAll) || loose(found) || loose(srAll);
+    }
     if (!hit) throw new Error('not found');
     LS.set(k, hit.id); return hit.id;
   }
+  function epAudio(e) { return e.listenpodfile?.url || e.downloadpodfile?.url || e.broadcast?.broadcastfiles?.[0]?.url || ''; }
   function srDate(s) { const m = /Date\((\d+)/.exec(s || ''); return m ? new Date(+m[1]).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }) : ''; }
   async function srLoad(k) {
     const r = SRK[k], box = document.getElementById('srl-' + k); if (!r || !box) return;
@@ -218,15 +262,14 @@
     try {
       const id = await srProgramId(r);
       const d = srCache[id] || (srCache[id] = await srGet('episodes/index?programid=' + id + '&size=6'));
-      const eps = (d?.episodes || []).filter(e => e.id);
+      const eps = (d?.episodes || []).filter(e => e.id && epAudio(e));
       if (!eps.length) throw new Error('empty');
-      box.innerHTML = `<div id="srp-${k}" class="sr-player">${srFrame(eps[0].id, eps[0].title)}</div>
-        <div class="sr-eps">${eps.map(e => `<button class="sr-ep" data-act="srPlay" data-k="${k}" data-id="${attr(e.id)}" data-title="${attr(e.title)}">
-          <span class="sr-ep-t">▶ ${esc(e.title)}</span><span class="sr-ep-d">${esc(srDate(e.publishdateutc))}</span></button>`).join('')}</div>
-        <div class="lib-foot">${link('https://sverigesradio.se/avsnitt?programid=' + id, 'Tüm bölümler — Sveriges Radio ↗')}</div>`;
+      box.innerHTML = `<div id="srp-${k}" class="sr-player">${audioHTML(epAudio(eps[0]), eps[0].title, 'Sveriges Radio', false)}</div>
+        <div class="sr-eps">${eps.map((e, i) => `<button class="sr-ep ${i ? '' : 'on'}" data-act="srPlay" data-k="${k}" data-src="${attr(epAudio(e))}" data-title="${attr(e.title)}">
+          <span class="sr-ep-t">▶ ${esc(e.title)}</span><span class="sr-ep-d">${esc(srDate(e.publishdateutc))}</span></button>`).join('')}</div>`;
     } catch (e) {
-      const url = r[2] ? 'https://sverigesradio.se/avsnitt?programid=' + r[2] : 'https://sverigesradio.se/sok?query=' + encodeURIComponent(r[1]);
-      box.innerHTML = `<div class="lib-note">Bölüm listesi şu an yüklenemedi. ${link(url, 'Sveriges Radio\'da dinle ↗')}</div>`;
+      box.innerHTML = `<div id="ap-sr-${k}" class="lib-inl"></div>`;   // yedek: aynı programı Apple Podcasts oynatıcısıyla sayfa içinde aç
+      appleLoad('ap-sr-' + k, r[1]);
     }
   }
   function srCard(r) {
@@ -270,11 +313,14 @@
        <div class="lib-foot">${link(LB + 'verket/', 'Tüm bölümler (Litteraturbanken) ↗')}</div>`, 'B2–C1');
     const dikter = sec('dikter', '📜', 'Tio klassiska dikter', 'On klasik şiir — oyuncuların ve şairlerin kendi seslerinden',
       `<p class="lib-p">Kısa şiirler telaffuz ve vurgu çalışmak için idealdir: önce metni Litteraturbanken'de oku, sonra kaydı dinle, en son sesli tekrar et.</p>
-       <div class="lib-list">${DIKTER.map(([t, a, id]) => `<div class="lib-row"><div class="lib-row-main"><b>${esc(t)}</b> <span class="lib-meta">${esc(a)}</span></div>
-         <div class="lib-acts">${link(LB + '2021/10/31/tio-klassiska-dikter/', '▶ Dinle ↗', 'lib-btn')}${link('https://litteraturbanken.se/författare/' + id, '📖 Oku ↗', 'lib-btn')}</div></div>`).join('')}</div>`, 'B2+');
+       <div class="lib-list">${DIKTER.map(([t, a, id, mp3], i) => `<div class="lib-row"><div class="lib-row-main"><b>${esc(t)}</b> <span class="lib-meta">${esc(a)}</span></div>
+         <div class="lib-acts"><button class="lib-btn" data-act="libAudio" data-box="au-d${i}" data-src="${attr(mp3)}" data-title="${attr(t + ' — ' + a)}">▶ Dinle</button>${link('https://litteraturbanken.se/författare/' + id, '📖 Metin ↗', 'lib-btn')}</div></div>
+         <div id="au-d${i}" class="lib-inl"></div>`).join('')}</div>`, 'B2+');
     const noveller = sec('noveller', '📖', 'Tio klassiska noveller', 'On klasik öykü — sesli okuma',
       `<p class="lib-p">Öyküler 5–30 dakika sürer. <b>Ett halvt ark papper</b> (Strindberg) tek sayfalık ve sade; başlamak için en iyisi.</p>
-       <div class="lib-list">${NOVELLER.map(([t, a, d]) => `<div class="lib-row"><div class="lib-row-main"><b>${esc(t)}</b> <span class="lib-meta">${esc(a)}</span>${d ? `<div class="lib-desc">${esc(d)}</div>` : ''}</div>${link(LB + '2021/10/31/tio-klassiska-noveller/', '▶ Dinle ↗', 'lib-btn')}</div>`).join('')}</div>`, 'B2+');
+       <div class="lib-list">${NOVELLER.map(([t, a, d, mp3], i) => `<div class="lib-row"><div class="lib-row-main"><b>${esc(t)}</b> <span class="lib-meta">${esc(a)}</span>${d ? `<div class="lib-desc">${esc(d)}</div>` : ''}</div>
+         <button class="lib-btn" data-act="libAudio" data-box="au-n${i}" data-src="${attr(mp3)}" data-title="${attr(t + ' — ' + a)}">▶ Dinle</button></div>
+         <div id="au-n${i}" class="lib-inl"></div>`).join('')}</div>`, 'B2+');
     const ljud = sec('ljud', '🎧', 'Diğer kayıtlar ve tarihî sesler', 'Sesli kitaplar, okumalar ve eski radyo kayıtları',
       `<div class="lib-list">${LJUD.concat(RÖSTER).map(([u, t, d]) => `<div class="lib-row"><div class="lib-row-main"><b>${esc(t)}</b>${d ? `<div class="lib-desc">${esc(d)}</div>` : ''}</div>${link(LB + u, '▶ Dinle ↗', 'lib-btn')}</div>`).join('')}</div>
        <div class="lib-foot">${link(LB + 'dikt-1593-1939/', 'Dikt 1593–1939: şiir antolojisi ↗')} · ${link(LB + 'titlar/', 'Tüm kayıtlar A–Ö ↗')} · ${link('https://litteraturbanken.se/diktensmuseum/', 'Diktens museum ↗')}</div>`, 'B2–C1');
@@ -297,12 +343,13 @@
     const topp = sec('topp', '🔥', 'En çok dinlenen podcastlar — öneri', 'İsveç topplistan: poddkoll.se, 7 Ekim 2026',
       `<p class="lib-p">İsveçlilerin şu an en çok dinlediği podcastlar. Bunlar doğal, hızlı günlük İsveççedir — B2 ve üstü için iyi bir hedef. Liste düzenli değişir.</p>
        <div class="lib-list">${TOP.map(([n, k, d], i) => `<div class="lib-row"><div class="lib-row-main"><span class="top-n">${i + 1}</span><b>${esc(n)}</b>${k ? ' <span class="lib-tag">Sveriges Radio</span>' : ''}<div class="lib-desc">${esc(d)}</div></div>
-         <div class="lib-acts">${k ? `<button class="lib-btn" data-act="libJump" data-k="sr">▶ Burada dinle</button>` : `${link(spot(n), 'Spotify ↗', 'lib-btn')}${link(apple(n), 'Apple ↗', 'lib-btn')}`}</div></div>`).join('')}</div>
+         <div class="lib-acts">${k ? `<button class="lib-btn" data-act="libJump" data-k="sr">▶ Burada dinle</button>` : `<button class="lib-btn" data-act="libApple" data-box="ap-top-${i}" data-q="${attr(n)}">▶ Burada dinle</button>`}</div></div>
+         ${k ? '' : `<div id="ap-top-${i}" class="lib-inl"></div>`}`).join('')}</div>
        <div class="lib-foot">${link('https://poddkoll.se/topplista', 'Güncel liste: poddkoll.se ↗')} · ${link('https://www.sverigesradio.se/artikel/topplista-mest-lyssnade-sommarpraten-2026', 'En çok dinlenen Sommar bölümleri 2026 ↗')}</div>`, '');
     return `<div class="fade-in lib">
       <div class="section-head"><h2 class="pane-h2">🎧 Bibliotek</h2><span class="lib-sub">Dinle, izle, oku — Litteraturbanken ve Svenska Akademien</span></div>
       <div class="lib-nav">${nav}</div>
-      <div class="lib-callout">📻 <b>Sveriges Radio</b> ve 🎙️ <b>Verket</b> podcastları burada, uygulamanın içinde çalar. Litteraturbanken'in şiir, öykü ve film kayıtları telif nedeniyle onların sitesinde açılır.</div>
+      <div class="lib-callout">▶ Podcastlar, şiirler ve öyküler <b>bu sayfanın içinde</b> çalar; yeni sayfa açılmaz. Sesler kaynağın kendi sunucusundan akış olarak çalınır (Sveriges Radio, Litteraturbanken, Verket). Oynatıcıda hızı 0.75× yapıp yavaş dinleyebilirsin.</div>
       ${sr}${topp}${verket}${dikter}${noveller}${ljud}${film}${sa}</div>`;
   }
   ACTIONS.libJump = (d) => { const el = document.getElementById('lib-' + d.k); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); };

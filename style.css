@@ -845,6 +845,16 @@ button, .nav-btn, .filter-chip, .bt, .seg-btn{ -webkit-tap-highlight-color:trans
 .sr-ep{display:flex;justify-content:space-between;gap:8px;text-align:left;background:none;border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px}
 .sr-ep:hover{border-color:var(--teal)}
 .sr-ep-d{color:var(--muted);white-space:nowrap}
+.au{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-top:6px}
+.au-t{font-size:12px;font-weight:700;margin-bottom:6px}
+.au-el{width:100%;height:40px}
+.au-c{font-size:11px;color:var(--muted);margin-top:4px;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
+.au-r{background:none;border:1px solid var(--border);border-radius:4px;color:var(--muted);font-size:10px;padding:1px 5px;margin-left:3px}
+.au-r.on{border-color:var(--teal);color:var(--teal)}
+.sr-ep.on{border-color:var(--teal);background:rgba(56,201,184,.08)}
+.lib-inl:empty{display:none}
+.lib-inl{margin:0 0 8px}
+.ap-frame{width:100%;height:450px;border:0;border-radius:10px;overflow:hidden;background:transparent}
 .top-n{display:inline-flex;width:22px;height:22px;border-radius:50%;background:var(--red);color:#fff;font-size:11px;font-weight:800;align-items:center;justify-content:center;margin-right:8px}
 @media(max-width:640px){.lib-row{flex-direction:column;align-items:flex-start}.sr-grid{grid-template-columns:1fr}}
 
